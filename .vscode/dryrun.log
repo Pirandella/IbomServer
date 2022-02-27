@@ -1,0 +1,8 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory `/Users/sergej/Documents/Clang/InteractiveHtmlBomLocalSever'
+make: Leaving directory `/Users/sergej/Documents/Clang/InteractiveHtmlBomLocalSever'
+ 
+make: *** No rule to make target `obj/main.o', needed by `http'.
+make: *** No rule to make target `obj/http.o', needed by `http'.
+make: *** No rule to make target `obj/index.o', needed by `http'.
+ 
