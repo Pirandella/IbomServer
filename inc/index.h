@@ -31,6 +31,8 @@
 
 typedef struct {					 // Directories and files index stucture
 	char *regex;					 // Regex string that will be used to match bom files
+	char *path;						 // Path to the projects root directory
+	char *name;						 // Projects root directory name
 	struct _dir {					 // Contains data about avaliable bom files
 		char *dir_name;				 // Project directory name
 		char **file_name;			 // Bom file name

@@ -179,6 +179,9 @@ index_t *index_init(char *const regex)
 		perror("Failed to allocate memory for index_t *index");
 		exit(1);
 	}
+	/* Initialize projects root directory path and name variables */
+	index->path = NULL;
+	index->name = NULL;
 	/* Initialize dir number and number of allocated struct _dir */
 	index->n_dirs = 0;
 	index->n_dirs_alloc = DEF_DIR_ALLOC_SIZE;
@@ -246,21 +249,49 @@ void index_files(const char *const directory, index_t *index)
 	regex_t regex;
 	if (regcomp(&regex, index->regex, REG_EXTENDED)) {
 		perror("Failed to compile regex");
-		exit(1);
+		exit(6);
 	}
-
+	
 	char *path = realpath(directory, NULL);
 	if (path == NULL) {
 		perror("Failed to resolve path");
-		exit(2);
+		exit(7);
 	}
 
-	if (index->n_dirs != 0) {
+	unsigned char first_index = ((index->path != NULL) ? 0 : 1);
+	char *ch = strrchr(path, '/') + 1;
+	size_t dir_name_len = (long)(ch) - (long)(path);
+
+	if (first_index) {
+		/* Allocate memory */
+		if ((index->path = malloc(sizeof(char) * (strlen(path) + 1))) == NULL) {
+			perror("Failed to allocate memory index -> char *path");
+			exit(8);
+		}
+		if ((index->name = malloc(sizeof(char) * (dir_name_len + 1))) == NULL) {
+			perror("Failed to allocate memory for index -> char *name");
+			exit(9);
+		}
+	} else {
+		/* Reallocate memory */
+		if (strlen(index->path) < strlen(path)) {
+			if ((index->path = realloc(index->path, sizeof(char) * (strlen(path) + 1))) == NULL) {
+				perror("Failed to reallocate memory for index -> char *path");
+				exit(10);
+			}
+			if ((index->name = realloc(index->name, sizeof(char) * (dir_name_len + 1))) == NULL) {
+				perror("Failed to reallocate memory for index -> char *name");
+				exit(11);
+			}
+		}
+
 		for (int i = 0; i < index->n_dirs; i++) {
 			index->dir[i].n_files = 0;
 		}
 		index->n_dirs = 0;
 	}
+	strcpy(index->path, path);
+	strcpy(index->name, ch);
 
 	finde_files(path, index, 0, regex);
 
@@ -298,5 +329,7 @@ void index_free(index_t *index)
 	}
 	free(index->dir);
 	free(index->regex);
+	free(index->path);
+	free(index->name);
 	free(index);
 }
